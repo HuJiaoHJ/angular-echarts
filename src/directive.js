@@ -6,7 +6,7 @@
  * @param {Service} $http, http service to make ajax requests from angular
  * @param {String} type, chart type
  */
-function getLinkFunction($http, theme, util, type) {
+function getLinkFunction($http, theme, util, type, $window) {
     return function (scope, element, attrs) {
         scope.config = scope.config || {};
 
@@ -210,6 +210,7 @@ function getLinkFunction($http, theme, util, type) {
                 if (options.series.length) {
                     chart.setOption(options);
                     chart.resize();
+                    chart.hideLoading();
                 } else {
                     chart.showLoading({ text: scope.config.errorMsg || '没有数据', textStyle: textStyle });
                 }
@@ -239,7 +240,7 @@ var app = angular.module('angular-echarts', ['angular-echarts.theme', 'angular-e
 var types = ['line', 'bar', 'area', 'pie', 'donut', 'gauge', 'map', 'radar'];
 for (var i = 0, n = types.length; i < n; i++) {
     (function (type) {
-        app.directive(type + 'Chart', ['$http', 'theme', 'util', function ($http, theme, util) {
+        app.directive(type + 'Chart', ['$http', 'theme', 'util', '$window', function ($http, theme, util, $window) {
             return {
                 restrict: 'EA',
                 template: '<div></div>',
@@ -247,7 +248,7 @@ for (var i = 0, n = types.length; i < n; i++) {
                     config: '=config',
                     data: '=data'
                 },
-                link: getLinkFunction($http, theme, util, type)
+                link: getLinkFunction($http, theme, util, type, $window)
             };
         }]);
     })(types[i]);
