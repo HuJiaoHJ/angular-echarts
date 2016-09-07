@@ -27,7 +27,6 @@ function getLinkFunction($http, theme, util, type, $window) {
                     orient: 'top',
                     axisLine: { show: false }
                 }, angular.isObject(config.xAxis) ? config.xAxis : {});
-            // 为了满足多个纵坐标的情况
             var yAxis = [];
             if (config.yAxis) {
                 for (var i = 0; i < config.yAxis.length; i++) {
@@ -49,16 +48,16 @@ function getLinkFunction($http, theme, util, type, $window) {
                 }
             } else {
                 yAxis = [{
-                                    type: 'value',
-                                    orient: 'right',
-                                    scale: false,
-                                    axisLine: { show: false },
-                                    axisLabel: {
-                                        formatter: function (v) {
-                                            return util.formatKMBT(v);
-                                        }
-                                    }
-                                }];
+                    type: 'value',
+                    orient: 'right',
+                    scale: false,
+                    axisLine: { show: false },
+                    axisLabel: {
+                        formatter: function (v) {
+                            return util.formatKMBT(v);
+                        }
+                    }
+                }];
             }
             // basic config
             var options = {
@@ -92,13 +91,12 @@ function getLinkFunction($http, theme, util, type, $window) {
                 delete options.yAxis;
             }
             if (config.dataZoom) {
-                // dataZoom应该是一个数组而不是对象
                 options.dataZoom = [];
                 for (var i = 0; i < config.dataZoom.length; i++) {
                     var dataZoom = angular.extend({
-                            show: true,
-                            realtime: true
-                        }, config.dataZoom[i]);
+                        show: true,
+                        realtime: true
+                    }, config.dataZoom[i]);
                     options.dataZoom.push(dataZoom);
                 }
             }
@@ -218,7 +216,7 @@ function getLinkFunction($http, theme, util, type, $window) {
                 setOptions();
             }
         }, true);
-        // 当浏览器窗口大小发生变化时，重新刷新组件
+
         angular.element($window).bind('resize', function () {
             setOptions();
         });
@@ -268,7 +266,6 @@ angular.module('angular-echarts.util', []).factory('util', function () {
                 ticks.push(datapoint.x);
             });
         }
-        // 折柱混合
         for (var i = 0; i < data.length; i++) {
             if (data[i].type === 'bar') {
                 type = 'bar';
@@ -297,7 +294,6 @@ angular.module('angular-echarts.util', []).factory('util', function () {
             });
             var conf = {
                     type: serie.type || type || 'line',
-                    // 折柱混合
                     name: serie.name,
                     data: datapoints,
                     silent: serie.silent
