@@ -38,19 +38,39 @@ function getLinkFunction($http, theme, util, type) {
                 axisLine: { show: false }
             }, angular.isObject(config.xAxis) ? config.xAxis : {});
 
-            var yAxis = angular.extend({
-                type: 'value',
-                orient: 'right',
-                scale: false,
-                axisLine: {
-                    show: false
-                },
-                axisLabel: {
-                    formatter: function (v) {
-                        return util.formatKMBT(v);
-                    }
+            // 为了满足多个纵坐标的情况
+            var yAxis = [];
+            if (config.yAxis) {
+                for (var i = 0; i < config.yAxis.length; i++) {
+                    var y = angular.extend({
+                            type: 'value',
+                            orient: 'right',
+                            scale: false,
+                            axisLine: { show: false },
+                            axisLabel: {
+                                formatter: function (v) {
+                                    if (config.yAxis[i] && config.yAxis[i].axisLabel) {
+                                        return config.yAxis[i].axisLabel.formatter(v);
+                                    }
+                                    return util.formatKMBT(v);
+                                }
+                            }
+                        }, angular.isObject(config.yAxis[i]) ? config.yAxis[i] : {});
+                    yAxis.push(y);
                 }
-            }, angular.isObject(config.yAxis) ? config.yAxis : {});
+            } else {
+                yAxis = [{
+                    type: 'value',
+                    orient: 'right',
+                    scale: false,
+                    axisLine: { show: false },
+                    axisLabel: {
+                        formatter: function (v) {
+                            return util.formatKMBT(v);
+                        }
+                    }
+                }];
+            }
 
             // basic config
             var options = {
@@ -59,7 +79,7 @@ function getLinkFunction($http, theme, util, type) {
                 legend: util.getLegend(data, config, type),
                 toolbox: angular.extend({ show: false }, angular.isObject(config.toolbox) ? config.toolbox : {}),
                 xAxis: [ angular.extend(xAxis, util.getAxisTicks(data, config, type)) ],
-                yAxis: [ yAxis ],
+                yAxis: yAxis,
                 series: util.getSeries(data, config, type)
             };
 
@@ -89,10 +109,15 @@ function getLinkFunction($http, theme, util, type) {
             }
 
             if (config.dataZoom) {
-                options.dataZoom = angular.extend({
-                    show : true,
-                    realtime : true
-                }, config.dataZoom);
+                // dataZoom应该是一个数组而不是对象
+                options.dataZoom = [];
+                for (var i = 0; i < config.dataZoom.length; i++) {
+                    var dataZoom = angular.extend({
+                        show: true,
+                        realtime: true
+                    }, config.dataZoom[i]);
+                    options.dataZoom.push(dataZoom);
+                }
             }
 
             if (config.dataRange) {
@@ -199,6 +224,10 @@ function getLinkFunction($http, theme, util, type) {
         scope.$watch(function () { return scope.data; }, function (value) {
             if (value) { setOptions(); }
         }, true);
+        // 当浏览器窗口大小发生变化时，重新刷新组件
+        angular.element($window).bind('resize', function () {
+            setOptions();
+        });
 
     };
 }
@@ -223,4 +252,3 @@ for (var i = 0, n = types.length; i < n; i++) {
         }]);
     })(types[i]);
 }
-

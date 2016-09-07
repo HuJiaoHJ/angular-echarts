@@ -27,6 +27,12 @@ angular.module('angular-echarts.util', []).factory('util', function () {
                 ticks.push(datapoint.x);
             });
         }
+        // 折柱混合
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].type === 'bar') {
+                type = 'bar';
+            }
+        }
 
         return {
             type: 'category',
@@ -52,9 +58,10 @@ angular.module('angular-echarts.util', []).factory('util', function () {
             });
 
             var conf = {
-                type: type || 'line',
+                type: serie.type || type || 'line',  // 折柱混合
                 name: serie.name,
                 data: datapoints,
+                silent: serie.silent  // 通过配置来设置当前数据线是否可交互
             };
 
             // area chart is actually line chart with special itemStyle
