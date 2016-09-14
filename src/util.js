@@ -61,7 +61,8 @@ angular.module('angular-echarts.util', []).factory('util', function () {
                 type: serie.type || type || 'line',  // 折柱混合
                 name: serie.name,
                 data: datapoints,
-                silent: serie.silent  // 通过配置来设置当前数据线是否可交互
+                silent: serie.silent,  // 通过配置来设置当前数据线是否可交互
+                yAxisIndex: serie.yAxisIndex ? serie.yAxisIndex : 0  // 使用的 y 轴的 index，在单个图表实例中存在多个 y轴的时候有用。默认为0
             };
 
             // area chart is actually line chart with special itemStyle
